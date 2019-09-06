@@ -584,13 +584,13 @@ impl<'a> Window<'a> {
         };
         if should_render {
             if self.dockspace_cond.is_some() {
-                unsafe { sys::igSetNextWindowDockID(self.dockspace_id.unwrap(), self.dockspace_cond.unwrap() as i32); }
+                unsafe { sys::igSetNextWindowDockID(self.dockspace_id.expect("Missing dockspace ID"), self.dockspace_cond.unwrap() as i32); }
             } else {
                 if self.dockspace_name.is_some() {
                     unsafe {
-                        sys::igDockSpace(self.dockspace_id.unwrap(),
-                                         self.dockspace_size.unwrap().into(),
-                                         self.dockspace_flags.unwrap().bits() as i32,
+                        sys::igDockSpace(self.dockspace_id.expect("Missing dockspace ID"),
+                                         self.dockspace_size.expect("Missing dockspace size").into(),
+                                         self.dockspace_flags.expect("Missing dockspace Flags").bits() as i32,
                                          std::ptr::null_mut());
                     }
                 }
