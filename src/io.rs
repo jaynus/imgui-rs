@@ -52,6 +52,8 @@ bitflags! {
         ///
         /// Not used by core imgui-rs.
         const IS_TOUCH_SCREEN = sys::ImGuiConfigFlags_IsTouchScreen;
+        /// Enable beta DOCKING features
+        const ENABLE_DOCKING = sys::ImGuiConfigFlags_DockingEnable;
     }
 }
 
@@ -174,6 +176,16 @@ pub struct Io {
     /// framebuffer coordinates
     pub display_framebuffer_scale: [f32; 2],
 
+    // Docking additions
+    pub config_docking_no_split: bool,
+    pub config_docking_with_shift: bool,
+    pub config_docking_always_tabbar: bool,
+    pub config_docking_transparent_payload: bool,
+    pub config_viewport_no_automerge: bool,
+    pub config_viewport_no_taskbar_icon: bool,
+    pub config_viewport_no_decoration: bool,
+    pub config_viewport_no_default_parent: bool,
+
     /// Request imgui-rs to draw a mouse cursor for you
     pub mouse_draw_cursor: bool,
     /// macOS-style input behavior.
@@ -197,6 +209,9 @@ pub struct Io {
     /// Windows without a title bar are not affected.
     pub config_windows_move_from_title_bar_only: bool,
 
+    // Docking addition
+    pub config_windows_memory_compact_timer: f32,
+
     pub(crate) backend_platform_name: *const c_char,
     pub(crate) backend_renderer_name: *const c_char,
     backend_platform_user_data: *mut c_void,
@@ -207,8 +222,7 @@ pub struct Io {
     pub(crate) set_clipboard_text_fn:
         Option<unsafe extern "C" fn(user_data: *mut c_void, text: *const c_char)>,
     pub(crate) clipboard_user_data: *mut c_void,
-    ime_set_input_screen_pos_fn: Option<unsafe extern "C" fn(x: c_int, y: c_int)>,
-    ime_window_handle: *mut c_void,
+
     render_draw_lists_fn_unused: *mut c_void,
 
     /// Mouse position, in pixels.
@@ -226,6 +240,10 @@ pub struct Io {
     /// Most users don't have a mouse with a horizontal wheel, and may not be filled by all
     /// backends.
     pub mouse_wheel_h: f32,
+
+    //TODO: Docker add
+    mouse_hovered_viewport: sys::ImGuiID,
+
     /// Keyboard modifier pressed: Control
     pub key_ctrl: bool,
     /// Keyboard modifier pressed: Shift
@@ -424,8 +442,9 @@ fn test_io_memory_layout() {
     assert_field_offset!(get_clipboard_text_fn, GetClipboardTextFn);
     assert_field_offset!(set_clipboard_text_fn, SetClipboardTextFn);
     assert_field_offset!(clipboard_user_data, ClipboardUserData);
-    assert_field_offset!(ime_set_input_screen_pos_fn, ImeSetInputScreenPosFn);
-    assert_field_offset!(ime_window_handle, ImeWindowHandle);
+    // Removed from docking
+    //assert_field_offset!(ime_set_input_screen_pos_fn, ImeSetInputScreenPosFn);
+    //assert_field_offset!(ime_window_handle, ImeWindowHandle);
     assert_field_offset!(render_draw_lists_fn_unused, RenderDrawListsFnUnused);
     assert_field_offset!(mouse_pos, MousePos);
     assert_field_offset!(mouse_down, MouseDown);

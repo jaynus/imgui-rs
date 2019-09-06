@@ -112,6 +112,39 @@ bitflags! {
     }
 }
 
+bitflags! {
+    /// Dock node flags
+    #[repr(transparent)]
+    pub struct DockNodeFlags: u32 {
+        const NONE = sys::ImGuiDockNodeFlags_None;
+        const KEEP_ALIVE_ONLY = sys::ImGuiDockNodeFlags_KeepAliveOnly;
+        const NO_SPLIT = sys::ImGuiDockNodeFlags_NoSplit;
+        const NO_DOCKING_IN_CENTRAL_NODE = sys::ImGuiDockNodeFlags_NoDockingInCentralNode;
+        const PASSTHRU_DOCKSPACE = sys::ImGuiDockNodeFlags_PassthruCentralNode;
+        const NO_RESIZE = sys::ImGuiDockNodeFlags_NoResize;
+        const AUTOHIDE_TABBAR = sys::ImGuiDockNodeFlags_AutoHideTabBar;
+    }
+}
+
+bitflags! {
+    /// Viewport flags
+    #[repr(transparent)]
+    pub struct ViewportFlags: u32 {
+        const NONE = sys::ImGuiViewportFlags_None;
+        const NO_DECORATION = sys::ImGuiViewportFlags_NoDecoration;
+        const NO_TASKBAR_ICON = sys::ImGuiViewportFlags_NoTaskBarIcon;
+        const NO_FOCUS_ON_APPEARING = sys::ImGuiViewportFlags_NoFocusOnAppearing;
+        const NO_FOCUS_ON_CLICK = sys::ImGuiViewportFlags_NoFocusOnClick;
+        const NO_INPUTS = sys::ImGuiViewportFlags_NoInputs;
+        const NO_RENDERER_CLEAR = sys::ImGuiViewportFlags_NoRendererClear;
+        const TOP_MOST = sys::ImGuiViewportFlags_TopMost;
+        const MINIMIZED = sys::ImGuiViewportFlags_Minimized;
+        const NO_AUTO_MERGE = sys::ImGuiViewportFlags_NoAutoMerge;
+        const CAN_HOST_OTHER_WINDOWS = sys::ImGuiViewportFlags_CanHostOtherWindows;
+    }
+}
+
+
 /// # Window utilities
 impl<'ui> Ui<'ui> {
     /// Returns true if the current window appeared during this frame
@@ -166,6 +199,12 @@ pub struct Window<'a> {
     collapsed_cond: Condition,
     focused: bool,
     bg_alpha: f32,
+
+    dockspace_id: Option<sys::ImGuiID>,
+    dockspace_name: Option<&'a ImStr>,
+    dockspace_flags: Option<DockNodeFlags>,
+    dockspace_size: Option<(f32, f32)>,
+    dockspace_cond: Option<Condition>,
 }
 
 impl<'a> Window<'a> {
@@ -186,7 +225,27 @@ impl<'a> Window<'a> {
             collapsed_cond: Condition::Never,
             focused: false,
             bg_alpha: f32::NAN,
+
+            dockspace_id: None,
+            dockspace_name: None,
+            dockspace_flags: None,
+            dockspace_size: None,
+            dockspace_cond: None,
         }
+    }
+    #[inline]
+    pub fn dockspace_id(mut self, value: u32, cond: Condition) -> Self {
+        self.dockspace_id = Some(value);
+        self.dockspace_cond = Some(cond);
+        self
+    }
+    #[inline]
+    pub fn dockspace(mut self, name: &'a ImStr, value: DockNodeFlags, size: (f32, f32)) -> Self {
+        self.dockspace_name = Some(name);
+        self.dockspace_flags = Some(value);
+        self.dockspace_size = Some(size);
+        self.dockspace_id = Some(unsafe { sys::igGetIDStr(self.dockspace_name.unwrap().as_ptr()) });
+        self
     }
     /// Enables the window close button, which sets the passed boolean to false when clicked
     #[inline]
@@ -524,6 +583,19 @@ impl<'a> Window<'a> {
             )
         };
         if should_render {
+            if self.dockspace_cond.is_some() {
+                unsafe { sys::igSetNextWindowDockID(self.dockspace_id.unwrap(), self.dockspace_cond.unwrap() as i32); }
+            } else {
+                if self.dockspace_name.is_some() {
+                    unsafe {
+                        sys::igDockSpace(self.dockspace_id.unwrap(),
+                                         self.dockspace_size.unwrap().into(),
+                                         self.dockspace_flags.unwrap().bits() as i32,
+                                         std::ptr::null_mut());
+                    }
+                }
+            }
+
             Some(WindowToken { ctx: ui.ctx })
         } else {
             unsafe { sys::igEnd() };

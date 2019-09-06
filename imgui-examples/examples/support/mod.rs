@@ -1,6 +1,6 @@
 use glium::glutin::{self, Event, WindowEvent};
 use glium::{Display, Surface};
-use imgui::{Context, FontConfig, FontGlyphRanges, FontSource, Ui};
+use imgui::{Context, FontConfig, FontGlyphRanges, FontSource, Ui, ConfigFlags};
 use imgui_glium_renderer::Renderer;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use std::time::Instant;
@@ -30,6 +30,7 @@ pub fn init(title: &str) -> System {
         Display::new(builder, context, &events_loop).expect("Failed to initialize display");
 
     let mut imgui = Context::create();
+    imgui.io_mut().config_flags |= ConfigFlags::ENABLE_DOCKING;
     imgui.set_ini_filename(None);
 
     if let Some(backend) = clipboard::init() {
