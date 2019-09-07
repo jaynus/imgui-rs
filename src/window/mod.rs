@@ -3,6 +3,7 @@ use std::f32;
 use std::ptr;
 use std::thread;
 
+use crate::docking::DockNodeFlags;
 use crate::context::Context;
 use crate::string::ImStr;
 use crate::sys;
@@ -109,38 +110,6 @@ bitflags! {
         /// Shorthand for `WindowFlags::NO_MOUSE_INPUTS | WindowFlags::NO_NAV_INPUTS |
         /// WindowFlags::NO_NAV_FOCUS`.
         const NO_INPUTS = sys::ImGuiWindowFlags_NoInputs;
-    }
-}
-
-bitflags! {
-    /// Dock node flags
-    #[repr(transparent)]
-    pub struct DockNodeFlags: u32 {
-        const NONE = sys::ImGuiDockNodeFlags_None;
-        const KEEP_ALIVE_ONLY = sys::ImGuiDockNodeFlags_KeepAliveOnly;
-        const NO_SPLIT = sys::ImGuiDockNodeFlags_NoSplit;
-        const NO_DOCKING_IN_CENTRAL_NODE = sys::ImGuiDockNodeFlags_NoDockingInCentralNode;
-        const PASSTHRU_DOCKSPACE = sys::ImGuiDockNodeFlags_PassthruCentralNode;
-        const NO_RESIZE = sys::ImGuiDockNodeFlags_NoResize;
-        const AUTOHIDE_TABBAR = sys::ImGuiDockNodeFlags_AutoHideTabBar;
-    }
-}
-
-bitflags! {
-    /// Viewport flags
-    #[repr(transparent)]
-    pub struct ViewportFlags: u32 {
-        const NONE = sys::ImGuiViewportFlags_None;
-        const NO_DECORATION = sys::ImGuiViewportFlags_NoDecoration;
-        const NO_TASKBAR_ICON = sys::ImGuiViewportFlags_NoTaskBarIcon;
-        const NO_FOCUS_ON_APPEARING = sys::ImGuiViewportFlags_NoFocusOnAppearing;
-        const NO_FOCUS_ON_CLICK = sys::ImGuiViewportFlags_NoFocusOnClick;
-        const NO_INPUTS = sys::ImGuiViewportFlags_NoInputs;
-        const NO_RENDERER_CLEAR = sys::ImGuiViewportFlags_NoRendererClear;
-        const TOP_MOST = sys::ImGuiViewportFlags_TopMost;
-        const MINIMIZED = sys::ImGuiViewportFlags_Minimized;
-        const NO_AUTO_MERGE = sys::ImGuiViewportFlags_NoAutoMerge;
-        const CAN_HOST_OTHER_WINDOWS = sys::ImGuiViewportFlags_CanHostOtherWindows;
     }
 }
 

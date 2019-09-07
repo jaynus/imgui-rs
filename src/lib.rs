@@ -47,8 +47,11 @@ pub use self::widget::slider::*;
 pub use self::window::child_window::*;
 pub use self::window::*;
 pub use self::window_draw_list::{ChannelsSplit, ImColor, WindowDrawList};
+pub use self::docking::*;
+
 use internal::RawCast;
 
+mod docking;
 mod clipboard;
 mod columns;
 mod context;
